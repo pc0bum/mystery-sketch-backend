@@ -1,4 +1,4 @@
-const userService = require("../services/userService");
+const roomService = require("../services/userService");
 
 const joinRoom = async (req, res) => {
     try {
@@ -8,9 +8,8 @@ const joinRoom = async (req, res) => {
       if ( !nickname || !profileImage ) {
         return res.status(400).json({ message: 'KEY_ERROR' });
       }
-
-      const result = await userService.joinRoom(nickname, profileImage);
-      res.status(200).json(result);
+      const result = await roomService.joinRoom(nickname, profileImage);
+      return res.status(200).json(result);
     } catch (error) {
       console.log(error);
       res.status(error.statusCode || 500).json({ message: error.message });
