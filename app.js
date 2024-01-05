@@ -1,11 +1,11 @@
-const mysql = require('mysql2')
-const http = require('http');
-const express = require('express');
-const cors = require('cors');
-const dotenv = require('dotenv');
+const mysql = require("mysql2");
+const http = require("http");
+const express = require("express");
+const cors = require("cors");
+const dotenv = require("dotenv");
 dotenv.config();
 
-const routes = require('./src/routes');
+const routes = require("./src/routes");
 const app = express();
 
 app.use(cors());
@@ -27,4 +27,4 @@ const start = async () => {
   }
 };
 
-start()
+start();

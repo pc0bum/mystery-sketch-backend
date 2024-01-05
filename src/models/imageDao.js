@@ -1,14 +1,13 @@
 const appDataSource = require("../models/dataSource");
 
-const getAnswer = async () => {
+const getProfileImage = async () => {
   return await appDataSource.query(`
     SELECT
     *
-    FROM word
-    ORDER BY RAND() LIMIT 10;
+    FROM profile_image
     `);
 };
 
 module.exports = {
-  getAnswer,
+  getProfileImage,
 };
