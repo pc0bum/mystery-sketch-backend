@@ -9,16 +9,16 @@ const appDataSource = new DataSource({
   password: process.env.TYPEORM_PASSWORD,
   database: process.env.TYPEORM_DATABASE,
   port: process.env.TYPEORM_PORT,
-  logging: process.env.TYPEORM_LOGGING === 'TRUE' 
-})
+  //logging: process.env.TYPEORM_LOGGING === 'TRUE' 추후 사용하게 되면 사용합시당!
+});
 
-appDataSource.initialize()
-    .then(() => {
-        console.log("Data Source has been initialized!")
-    })
-    .catch((err) => {
-        console.error("Error occured during Data Source initialization", err)
-    })
+appDataSource
+  .initialize()
+  .then(() => {
+    console.log("Data Source has been initialized!");
+  })
+  .catch((err) => {
+    console.error("Error occured during Data Source initialization", err);
+  });
 
 module.exports = appDataSource;
-
