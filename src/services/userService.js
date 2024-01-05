@@ -12,7 +12,7 @@ const roomService = {
                 throw new Error('USER_ID_NOT_FOUND');
             } 
 
-            // 여기서부터 게임방 입장
+            // 여기서부터 게임방 입장 로직
             const existingRooms = await userDao.getExistingRooms();
             const getExistingRoomsID = existingRooms.map(room => room.id);
            
@@ -22,7 +22,7 @@ const roomService = {
 
                 if (enrolledPlayersCount.count < roomMaxPlayers.max_players) {
                     await userDao.joinRoom(userId, roomId);
-                    return {message:'JOIN_ROOM_SUCCESS'};
+                    return {message:'JOIN_ROOM_SUCCESS', roomId:roomId};
                     // 유저를 입장시킨 후 함수 종료
                 }
             }
@@ -32,7 +32,7 @@ const roomService = {
            const roomId = createdRoomInfo.insertId;
            await userDao.joinRoom(userId, roomId);
 
-           return {message:'CREATE_JOIN_ROOM_SUCCESS'};
+           return {message:'CREATE_JOIN_ROOM_SUCCESS',roomId:roomId};
 
         } catch (error) {
             throw new Error(`Error joining room: ${error.message}`);
