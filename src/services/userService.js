@@ -12,7 +12,7 @@ const roomService = {
         throw new Error("USER_ID_NOT_FOUND");
       }
 
-      // 여기서부터 게임방 입장 로직
+      // 여기서부터 게임방 입장 로직 (비밀방이 아닌 공용방만 찾도록 설정)
       const existingRooms = await userDao.getExistingRooms();
       const getExistingRoomsID = existingRooms.map((room) => room.id);
 
