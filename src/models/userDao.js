@@ -47,7 +47,7 @@ const userDao = {
 
   getExistingRooms: async () => {
     try {
-      const query = "SELECT id FROM rooms";
+      const query = "SELECT id FROM rooms WHERE is_private = 0 ";
       return await appDataSource.query(query);
     } catch (error) {
       throw new Error("Error fetching existing rooms");
