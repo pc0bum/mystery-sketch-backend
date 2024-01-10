@@ -87,11 +87,11 @@ const userDao = {
     }
   },
 
-  secretCreateRoomByDefaultValue: async () => {
+  secretCreateRoomByUserValue: async (maxPlayers, time, round) => {
     try {
       const query =
-        "INSERT INTO rooms (max_players, time, round, is_private, created_at) VALUES (DEFAULT, DEFAULT, DEFAULT, 1, DEFAULT);";
-      return await appDataSource.query(query);
+        "INSERT INTO rooms (max_players, time, round, is_private, created_at) VALUES (?, ?, ?, 1, DEFAULT);";
+      return await appDataSource.query(query, [maxPlayers, time, round]);
     } catch {
       throw new Error("Error fetching create room");
     }
