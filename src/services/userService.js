@@ -42,6 +42,28 @@ const roomService = {
       throw new Error(`Error joining room: ${error.message}`);
     }
   },
+
+  secretJoinRoom: async (nickname, profileImage) => {
+    try {
+      // 유저 회원가입 및 방장권한 주기
+      const createdUserInfo = await userDao.secretSignUp(
+        nickname,
+        profileImage
+      );
+      const userId = createdUserInfo.insertId;
+
+      // 방 기본값으로 비밀 방을 만든다.
+      const createdRoomInfo = await userDao.secretCreateRoomByDefaultValue();
+
+      //방금 만든 방으로 입장 시키기
+      const roomId = createdRoomInfo.insertId;
+      await userDao.joinRoom(userId, roomId);
+
+      return { message: "CREATE_SECRET_JOIN_ROOM_SUCCESS", roomId: roomId };
+    } catch (error) {
+      throw new Error(`Error joining room: ${error.message}`);
+    }
+  },
 };
 
 module.exports = roomService;
