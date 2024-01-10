@@ -71,6 +71,31 @@ const userDao = {
       throw new Error("Error fetching create room");
     }
   },
+
+  secretSignUp: async (nickname, profileImage) => {
+    try {
+      return await appDataSource.query(
+        `
+        INSERT INTO users
+        (username, profile_image_id, isAdmin)
+        VALUES (?, ?, 1);
+        `,
+        [nickname, profileImage]
+      );
+    } catch (error) {
+      throw new Error("Error signing up user");
+    }
+  },
+
+  secretCreateRoomByDefaultValue: async () => {
+    try {
+      const query =
+        "INSERT INTO rooms (max_players, time, round, is_private, created_at) VALUES (DEFAULT, DEFAULT, DEFAULT, 1, DEFAULT);";
+      return await appDataSource.query(query);
+    } catch {
+      throw new Error("Error fetching create room");
+    }
+  },
 };
 
 module.exports = userDao;
