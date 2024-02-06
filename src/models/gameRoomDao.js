@@ -2,7 +2,7 @@ const appDataSource = require("./dataSource");
 
 const getGameroomInfo = async (roomId) => {
   return await appDataSource.query(
-  `
+    `
   SELECT
   rooms.id AS room_id,
   rooms.max_players,
@@ -34,10 +34,17 @@ WHERE
 GROUP BY
   rooms.id, rooms.max_players, rooms.time, rooms.round, rooms.is_private;
     `,
-  roomId
+    roomId
   );
+};
+
+const getRoomSetting = async (roomId) => {
+  return await appDataSource.query(`SELECT time , max_players , round FROM rooms where id = ?`, [
+    roomId,
+  ]);
 };
 
 module.exports = {
   getGameroomInfo,
+  getRoomSetting,
 };
