@@ -14,7 +14,7 @@ const setupSocket = (io) => {
     });
     // socket 그림 그리기
     socket.on("draw", (data) => {
-      io.emit("draw", data.x, data.y);
+      io.emit("draw", data);
     });
     // socket 유저 업데이트
     socket.on("newUserJoined", async ({ roomId }) => {
