@@ -1,3 +1,5 @@
+const gameRoomDao = require("../models/gameRoomDao");
+
 const setupSocket = (io) => {
   const messages = [];
 
