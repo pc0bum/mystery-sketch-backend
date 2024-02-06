@@ -16,6 +16,10 @@ const setupSocket = (io) => {
     socket.on("draw", (data) => {
       io.emit("draw", data);
     });
+    // socket 컬러 변경
+    socket.on("color", (data) => {
+      io.emit("color", data);
+    });
     // socket 유저 업데이트
     socket.on("newUserJoined", async ({ roomId }) => {
       console.log("newUserJoined event received with roomId:", roomId);
