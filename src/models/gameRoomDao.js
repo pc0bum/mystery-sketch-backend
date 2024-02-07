@@ -52,8 +52,17 @@ const updateRoundNumberToDB = async (roundNumber, roomId) => {
   );
 };
 
+const getGameRoomCurrentRound = async (roomId) => {
+  const result = await appDataSource.query(
+    `SELECT current_round FROM rooms WHERE id = ?`,
+    [roomId]
+  );
+  return result[0].current_round;
+};
+
 module.exports = {
   getGameroomInfo,
   getRoomSetting,
-  updateRoundNumberToDB
+  updateRoundNumberToDB,
+  getGameRoomCurrentRound,
 };
