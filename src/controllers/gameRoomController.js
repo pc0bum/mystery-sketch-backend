@@ -11,6 +11,22 @@ const getGameroomInfo = async (req, res) => {
   }
 };
 
+const updateRoundNumberToDB = async (req, res) => {
+  try {
+    const roundNumber = req.body.isRound;
+    const roomId = req.body.roomId;
+    const result = await gameRoomService.updateRoundNumberToDB(
+      roundNumber,
+      roomId
+    );
+    res.status(200).json(result);
+  } catch (error) {
+    console.log(error);
+    res.status(error.statusCode || 500).json({ message: error.message });
+  }
+};
+
 module.exports = {
   getGameroomInfo,
+  updateRoundNumberToDB,
 };
