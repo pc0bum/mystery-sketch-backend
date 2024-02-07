@@ -42,6 +42,14 @@ const setupSocket = (io) => {
       io.emit("eraser", data);
     });
 
+    // socket 현재 라운드
+    socket.on("isRound", (data) => {
+      const roomId = data.roomId;
+      const isRound = data.isRound;
+      console.log(`룸 아이디 : ${roomId} , 현재라운드 : ${isRound}`);
+      io.to(roomId).emit("message", { message: `${isRound}라운드 입니다.` });
+    });
+
     // socket 유저 업데이트
     socket.on("newUserJoined", async ({ roomId }) => {
       console.log("newUserJoined event received with roomId:", roomId);
@@ -59,7 +67,7 @@ const setupSocket = (io) => {
         console.error("Error fetching gameroomInfo:", error);
       }
     });
-    const startGame = (socket) => {
+    const startGame = async (socket) => {
       const roomId = socket.roomId;
       console.log("룸 아이디 : ", roomId);
       if (!roomId) {
@@ -72,9 +80,12 @@ const setupSocket = (io) => {
         console.log("Not enough players to start the game");
         return;
       }
+      const isRound = await gameRoomDao.getGameRoomCurrentRound(roomId);
       console.log("최소 인원 충족 게임을 시작할 수 있습니다");
+      console.log("현재 라운드:", isRound);
       io.to(roomId).emit("gameStarted");
-      io.to(roomId).emit("systemMessage", "게임시작!!!");
+      io.to(roomId).emit("message", { message: "start" });
+      io.to(roomId).emit("message", { message: `${isRound}라운드입니다.` });
     };
   });
   const joinRoom = async (socket, roomId) => {
