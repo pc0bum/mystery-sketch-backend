@@ -27,6 +27,11 @@ const setupSocket = (io) => {
       console.log("룸 설정 값 : ", roomSetting);
       io.emit("updateTimer", remainTime, roomSetting);
     });
+    // socket 그림 지우기
+    socket.on("eraser", (data) => {
+      console.log("지우개 좌표 : ", data);
+      io.emit("eraser", data);
+    });
 
     // socket 유저 업데이트
     socket.on("newUserJoined", async ({ roomId }) => {
