@@ -39,12 +39,21 @@ GROUP BY
 };
 
 const getRoomSetting = async (roomId) => {
-  return await appDataSource.query(`SELECT time , max_players , round FROM rooms where id = ?`, [
-    roomId,
-  ]);
+  return await appDataSource.query(
+    `SELECT time , max_players , round FROM rooms where id = ?`,
+    [roomId]
+  );
+};
+
+const updateRoundNumberToDB = async (roundNumber, roomId) => {
+  return await appDataSource.query(
+    `UPDATE rooms SET current_round = ? WHERE id = ?`,
+    [roundNumber, roomId]
+  );
 };
 
 module.exports = {
   getGameroomInfo,
   getRoomSetting,
+  updateRoundNumberToDB
 };
