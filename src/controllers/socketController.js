@@ -46,8 +46,9 @@ const setupSocket = (io) => {
     socket.on("isRound", (data) => {
       const roomId = data.roomId;
       const isRound = data.isRound;
-      console.log(`룸 아이디 : ${roomId} , 현재라운드 : ${isRound}`);
-      io.to(roomId).emit("message", { message: `${isRound}라운드 입니다.` });
+      const transRound = isRound + 1;
+      console.log(`룸 아이디 : ${roomId} , 현재라운드 : ${transRound}`);
+      io.to(roomId).emit("isRound", transRound);
     });
 
     // socket 유저 업데이트
@@ -85,7 +86,6 @@ const setupSocket = (io) => {
       console.log("현재 라운드:", isRound);
       io.to(roomId).emit("gameStarted");
       io.to(roomId).emit("message", { message: "start" });
-      io.to(roomId).emit("message", { message: `${isRound}라운드입니다.` });
     };
   });
   const joinRoom = async (socket, roomId) => {
