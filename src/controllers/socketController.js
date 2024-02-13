@@ -1,4 +1,7 @@
 const gameRoomDao = require("../models/gameRoomDao");
+const userDao = require("../models/userDao");
+
+const connectedUsers = {};
 
 const setupSocket = (io) => {
   const messages = [];
@@ -7,9 +10,38 @@ const setupSocket = (io) => {
   io.on("connection", (socket) => {
     console.log(`Socket connected: ${socket.id}`);
 
+    socket.on("setUserInfo", (data) => {
+      console.log(`유저 닉네임 : ${data.userNickname}`);
+      socket.username = data.userNickname;
+      connectedUsers[socket.username] = socket.id;
+    });
+
     // socket disconnected
-    socket.on("disconnect", () => {
+    socket.on("disconnect", async () => {
       console.log(`Socket disconnected: ${socket.id}`);
+
+      const roomId = socket.roomId;
+      const username = socket.username;
+
+      if (username) {
+        try {
+          const userId = await userDao.getUserIdByUsername(username);
+          console.log(`userId : ${userId}`);
+          await userDao.deleteEnrolledPlayers(userId);
+          await userDao.deleteUserFromDatabase(userId);
+          delete connectedUsers[username];
+        } catch (error) {
+          console.error("Error handling disconnected user", error);
+        }
+      }
+      if (roomId) {
+        try {
+          const gameRoomInfo = await gameRoomDao.getGameroomInfo(roomId);
+          io.to(roomId).emit("userListUpdate", gameRoomInfo);
+        } catch (error) {
+          console.error("Error updating user list", error);
+        }
+      }
     });
 
     // socket 메세지 보내기

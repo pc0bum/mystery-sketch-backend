@@ -112,6 +112,40 @@ const userDao = {
       throw new Error("Error fetching double check");
     }
   },
+
+  getUserIdByUsername: async (username) => {
+    try {
+      const result = await appDataSource.query(
+        `SELECT * FROM users WHERE username = ?`,
+        [username]
+      );
+      return result[0].id;
+    } catch (error) {
+      throw new Error("Error fetching user id");
+    }
+  },
+  deleteUserFromDatabase: async (userId) => {
+    try {
+      const result = await appDataSource.query(
+        `DELETE FROM users WHERE id = ?`,
+        [userId]
+      );
+      return "DELETED SUCCESSFUL";
+    } catch (error) {
+      throw new Error("Error fetching delete user id");
+    }
+  },
+  deleteEnrolledPlayers: async (userId) => {
+    try {
+      const result = await appDataSource.query(
+        `DELETE FROM enrolled_players where users_id = ?`,
+        [userId]
+      );
+      return "DELETED SUCCESSFUL";
+    } catch (error) {
+      throw new Error("Error fetching delete enrolled_players");
+    }
+  },
 };
 
 module.exports = userDao;
