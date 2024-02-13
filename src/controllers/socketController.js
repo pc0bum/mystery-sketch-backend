@@ -23,6 +23,10 @@ const setupSocket = (io) => {
       console.log("game start :", data);
       startGame(socket);
     });
+    // socket 그림 그리기 권한
+    socket.on("pencil", ({ isRound, roomId }) => {
+      io.to(roomId).emit("pencil", isRound);
+    });
     // socket 그림 그리기
     socket.on("draw", (data) => {
       io.emit("draw", data);
