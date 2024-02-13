@@ -68,6 +68,17 @@ const roomService = {
       throw new Error(`Error joining room: ${error.message}`);
     }
   },
+
+  doubleCheckNickname: async (nickname) => {
+    try {
+      const result = await userDao.doubleCheckNickname(nickname);
+      console.log(`닉네임 중복 테스트 중 ${result}`);
+
+      return result;
+    } catch (error) {
+      throw new Error(`Error checking nickname: ${error.message}`);
+    }
+  },
 };
 
 module.exports = roomService;

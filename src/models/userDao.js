@@ -96,6 +96,22 @@ const userDao = {
       throw new Error("Error fetching create room");
     }
   },
+
+  doubleCheckNickname: async (nickname) => {
+    try {
+      const result = await appDataSource.query(
+        `SELECT * FROM users WHERE username = ?`,
+        [nickname]
+      );
+      if (result.length === 0) {
+        return "USERNAME_NOT_FOUND";
+      }
+      console.log(result[0].username);
+      return result[0].username;
+    } catch (error) {
+      throw new Error("Error fetching double check");
+    }
+  },
 };
 
 module.exports = userDao;
