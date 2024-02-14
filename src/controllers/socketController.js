@@ -16,6 +16,12 @@ const setupSocket = (io) => {
       connectedUsers[socket.username] = socket.id;
     });
 
+    // 추방 기능
+    socket.on("expelUser", (data) => {
+      console.log(`추방당한 닉네임 : ${data.username}`);
+      io.emit("expelUser", data);
+    });
+
     // socket disconnected
     socket.on("disconnect", async () => {
       console.log(`Socket disconnected: ${socket.id}`);
