@@ -1,8 +1,8 @@
 const gameRoomDao = require("../models/gameRoomDao.js");
 
 // 게임방 정보, 들어온 유저 정보
-const getGameroomInfo = async (roomId ,roundNumber) => {
-  const result = await gameRoomDao.getGameroomInfo(roomId, roundNumber);
+const getGameroomInfo = async (roomId) => {
+  const result = await gameRoomDao.getGameroomInfo(roomId);
   // 유저 정보 데이터 형태 변환 코드
   const gameRoomInfo = {
     room_id: result[0].room_id,
@@ -24,5 +24,4 @@ const updateRoundNumberToDB = async (roundNumber, roomId) => {
 module.exports = {
   getGameroomInfo,
   updateRoundNumberToDB,
-  // getPencilAdmin
 };

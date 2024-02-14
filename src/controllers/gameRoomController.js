@@ -3,8 +3,7 @@ const gameRoomService = require("../services/gameRoomService.js");
 const getGameroomInfo = async (req, res) => {
   try {
     const roomId = req.params.roomId;
-    const roundNumber = req.body.isRound
-    const result = await gameRoomService.getGameroomInfo(roomId, roundNumber);
+    const result = await gameRoomService.getGameroomInfo(roomId);
     res.status(200).json(result);
   } catch (error) {
     console.log(error);
