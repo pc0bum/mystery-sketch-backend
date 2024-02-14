@@ -21,7 +21,14 @@ const updateRoundNumberToDB = async (roundNumber, roomId) => {
   return result;
 };
 
+const getPencilAdmin = async (userId, roomId, roundNumber) => {
+  const result = await gameRoomDao.getPencilAdmin(userId, roomId, roundNumber)
+  
+  return result
+}
+
 module.exports = {
   getGameroomInfo,
   updateRoundNumberToDB,
+  getPencilAdmin
 };

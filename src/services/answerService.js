@@ -1,7 +1,6 @@
 const answerDao = require("../models/answerDao.js");
 
 let excludedIdsPerRoom = {};
-console.log(excludedIdsPerRoom)
 
 const getAnswer = async (roomId) => {
     if (!excludedIdsPerRoom[roomId]) {

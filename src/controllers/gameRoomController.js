@@ -26,7 +26,25 @@ const updateRoundNumberToDB = async (req, res) => {
   }
 };
 
+const getPencilAdmin = async (req, res) => {
+  try{
+    const roomId = req.body.roomId;
+    const userId = req.body.userId;
+    const roundNumber = req.body.isRound;
+    const result = await gameRoomService.getPencilAdmin(
+      roomId,
+      userId,
+      roundNumber
+    );
+    res.status(200).json(result);
+    } catch (error){
+    console.log(error)
+    res.status(error.statusCode || 500).json({message: error.message})
+  }
+}
+
 module.exports = {
   getGameroomInfo,
   updateRoundNumberToDB,
+  getPencilAdmin
 };

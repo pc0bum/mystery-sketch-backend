@@ -60,9 +60,43 @@ const getGameRoomCurrentRound = async (roomId) => {
   return result[0].current_round;
 };
 
+const getUserIdsInRoom = async (roomId) => {
+  // 해당 방에 들어온 사용자들의 ID를 가져오는 코드 작성
+  // 예를 들어, 데이터베이스에서 해당 방의 사용자 ID를 가져올 수 있습니다.
+  const userIds = await appDataSource.query(`
+      SELECT users_id FROM enrolled_players WHERE rooms_id = ?;
+  `, [roomId]);
+  return userIds.map(row => row.users_id);
+};
+
+const getPencilAdmin = async (roomId, roundNumber) => {
+  try {
+      const userIdsInRoom = await getUserIdsInRoom(roomId);
+      for (let i = 0; i < userIdsInRoom.length; i++) {
+          const userId = userIdsInRoom[i];
+          let pencilAdmin = 0;
+          if (i === (roundNumber - 1) % userIdsInRoom.length) {
+              pencilAdmin = 1;
+          }
+          // users 테이블 업데이트
+          await appDataSource.query(`
+              UPDATE users 
+              SET pencilAdmin = ? 
+              WHERE id = ?
+          `, [pencilAdmin, userId]);
+      }
+      // 클라이언트에게 업데이트된 pencilAdmin 값을 반환
+      return userIdsInRoom.map((userId, index) => ({ userId, pencilAdmin: index === (roundNumber - 1) % userIdsInRoom.length ? 1 : 0 }));
+  } catch (error) {
+      console.error('pencilAdmin 업데이트 중 오류가 발생했습니다.', error);
+      throw error;
+  }
+};
+
 module.exports = {
   getGameroomInfo,
   getRoomSetting,
   updateRoundNumberToDB,
   getGameRoomCurrentRound,
+  getPencilAdmin
 };
