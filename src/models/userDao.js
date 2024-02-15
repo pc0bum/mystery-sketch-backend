@@ -146,6 +146,29 @@ const userDao = {
       throw new Error("Error fetching delete enrolled_players");
     }
   },
+  getUserPoint: async (username) => {
+    try {
+      const result = await appDataSource.query(
+        `SELECT * FROM users WHERE username = ?`,
+        [username]
+      );
+      console.log(`가져온 유저 포인트 : ${result[0].score}`);
+      return result[0].score;
+    } catch (error) {
+      throw new Error("Error fetching getUserPoint");
+    }
+  },
+  updateUserPoint: async (username, point) => {
+    try {
+      const result = await appDataSource.query(
+        `UPDATE users SET score = ? WHERE username = ?`,
+        [point, username]
+      );
+      return "POINT UPDATED SUCCESSFUL";
+    } catch (error) {
+      throw new Error("Error updating user point");
+    }
+  },
 };
 
 module.exports = userDao;

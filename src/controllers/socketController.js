@@ -2,6 +2,7 @@ const gameRoomDao = require("../models/gameRoomDao");
 const userDao = require("../models/userDao");
 
 const connectedUsers = {};
+const plusPoint = 100;
 
 const setupSocket = (io) => {
   const messages = [];
@@ -27,6 +28,24 @@ const setupSocket = (io) => {
       console.log(`문제 : ${data.answer}`);
       console.log(`문제 공유할 룸 넘버 : ${data.roomId}`);
       io.emit("answer", data);
+    });
+
+    // 유저 포인트 추가 기능
+    socket.on("point", async (data) => {
+      console.log(`포인트 추가 받을 닉네임 : ${data.username}`);
+      const currentPoint = await userDao.getUserPoint(data.username);
+      console.log(`현재 유저가 가지고 있는 point : ${currentPoint}`);
+      const updatedPoint = currentPoint + plusPoint;
+      console.log(`업데이트 할 포인트 : ${updatedPoint}`);
+      const plusPointToUser = await userDao.updateUserPoint(
+        data.username,
+        updatedPoint
+      );
+      console.log(`point 업데이트 결과 : ${plusPointToUser}`);
+      const gameRoomInfo = await gameRoomDao.getGameroomInfo(data.roomId);
+      console.log(`게임룸 정보 업데이트 : ${gameRoomInfo}`);
+      io.emit("userListUpdate", gameRoomInfo);
+      io.emit("nextRound");
     });
 
     // socket disconnected
