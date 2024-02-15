@@ -22,6 +22,13 @@ const setupSocket = (io) => {
       io.emit("expelUser", data);
     });
 
+    // 실시간 문제 공유 기능
+    socket.on("answer", (data) => {
+      console.log(`문제 : ${data.answer}`);
+      console.log(`문제 공유할 룸 넘버 : ${data.roomId}`);
+      io.emit("answer", data);
+    });
+
     // socket disconnected
     socket.on("disconnect", async () => {
       console.log(`Socket disconnected: ${socket.id}`);
