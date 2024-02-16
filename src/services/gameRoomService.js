@@ -21,7 +21,22 @@ const updateRoundNumberToDB = async (roundNumber, roomId) => {
   return result;
 };
 
+const updatePencilAdminForRound = async (roundNumber, roomId) => {
+  const result = await gameRoomDao.updatePencilAdminForRound(roundNumber, roomId);
+  // 유저 정보 데이터 형태 변환 코드
+  const gameRoomInfo = {
+    room_id: result[0].room_id,
+    max_players: result[0].max_players,
+    time: result[0].time,
+    round: result[0].round,
+    is_private: result[0].is_private,
+    users: JSON.parse(result[0].users),
+  };
+  return { message: "GET_GAME_ROOM_INFO_SUCCESS", gameRoomInfo: gameRoomInfo };
+}
+
 module.exports = {
   getGameroomInfo,
   updateRoundNumberToDB,
+  updatePencilAdminForRound
 };
