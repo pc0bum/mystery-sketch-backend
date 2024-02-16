@@ -6,5 +6,7 @@ router.get("/:roomId", gameRoomController.getGameroomInfo);
 
 router.put("/currentRound" , gameRoomController.updateRoundNumberToDB);
 
+router.put("/:roomId", gameRoomController.updatePencilAdminForRound);
+
 
 module.exports.router = router;
