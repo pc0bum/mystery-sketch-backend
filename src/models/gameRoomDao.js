@@ -1,10 +1,9 @@
 const appDataSource = require("./dataSource");
 
-// 방 정보 가져오기
 const getGameroomInfo = async (roomId) => {
   try {
-    // 게임룸 정보 조회
-    const gameroomInfo = await appDataSource.query(`
+    const gameroomInfo = await appDataSource.query(
+      `
       SELECT
         rooms.id AS room_id,
         rooms.max_players,
@@ -36,11 +35,20 @@ const getGameroomInfo = async (roomId) => {
         rooms.id = ?
       GROUP BY
         rooms.id, rooms.max_players, rooms.time, rooms.round, rooms.is_private;
-    `, [roomId]);
+    `,
+      [roomId]
+    );
+
+    // 사용자 정보를 users_id 기준으로 정렬
+    if (gameroomInfo && gameroomInfo.users) {
+      const usersArray = JSON.parse(gameroomInfo.users);
+      usersArray.sort((a, b) => a.users_id - b.users_id);
+      gameroomInfo.users = JSON.stringify(usersArray);
+    }
 
     return gameroomInfo;
   } catch (error) {
-    console.error('게임룸 정보 조회 중 오류가 발생했습니다.', error);
+    console.error("게임룸 정보 조회 중 오류가 발생했습니다.", error);
     throw error;
   }
 };
@@ -49,10 +57,14 @@ const getGameroomInfo = async (roomId) => {
 const getUserIdsInRoom = async (roomId) => {
   // 해당 방에 들어온 사용자들의 ID를 가져오는 코드 작성
   // 예를 들어, 데이터베이스에서 해당 방의 사용자 ID를 가져올 수 있습니다.
-  const userIds = await appDataSource.query(`
+  const userIds = await appDataSource.query(
+    `
     SELECT users_id FROM enrolled_players WHERE rooms_id = ?;
-  `, [roomId]);
-  return userIds.map(row => row.users_id);
+  `,
+    [roomId]
+  );
+  console.log("유저 아이디들:", userIds);
+  return userIds.map((row) => row.users_id);
 };
 
 // 라운드 변경 시 pencilAdmin 업데이트
@@ -63,6 +75,10 @@ const updatePencilAdminForRound = async (roundNumber, roomId) => {
 
     const pencilAdminIndex = (roundNumber - 1) % totalUsers;
 
+    console.log(
+      `유저 수 : ${totalUsers} , 라운드 넘버 : ${roundNumber} , 펜슬 인덱스 : ${pencilAdminIndex}`
+    );
+
     // pencilAdmin 값을 업데이트
     await updatePencilAdmin(roomId, userIdsInRoom, pencilAdminIndex);
 
@@ -70,7 +86,10 @@ const updatePencilAdminForRound = async (roundNumber, roomId) => {
     const updatedGameroomInfo = await getGameroomInfo(roomId);
     return updatedGameroomInfo;
   } catch (error) {
-    console.error('현재 라운드에 대한 연필권한 업데이트 중 오류가 발생했습니다.', error);
+    console.error(
+      "현재 라운드에 대한 연필권한 업데이트 중 오류가 발생했습니다.",
+      error
+    );
     throw error;
   }
 };
@@ -78,25 +97,30 @@ const updatePencilAdminForRound = async (roundNumber, roomId) => {
 // updatePencilAdmin 함수 정의
 const updatePencilAdmin = async (roomId, userIdsInRoom, pencilAdminIndex) => {
   try {
+    console.log("펜슬 어드민 인덱스 : ", pencilAdminIndex);
     for (let i = 0; i < userIdsInRoom.length; i++) {
       const userId = userIdsInRoom[i];
-      let pencilAdmin = (pencilAdminIndex === i) ? 1 : 0;
+      let pencilAdmin = pencilAdminIndex === i ? 1 : 0;
+
+      console.log("pencilAdmin : ", pencilAdmin);
 
       // 데이터베이스에 연필 권한을 업데이트하는 SQL 쿼리
-      await appDataSource.query(`
+      await appDataSource.query(
+        `
         UPDATE users 
         SET pencilAdmin = ?
         WHERE id = ? AND id IN (
           SELECT users_id FROM enrolled_players WHERE users_id = ? AND rooms_id = ?
         );
-      `, [pencilAdmin, userId, userId, roomId]);
+      `,
+        [pencilAdmin, userId, userId, roomId]
+      );
     }
   } catch (error) {
-    console.error('pencilAdmin 업데이트 중 오류가 발생했습니다.', error);
+    console.error("pencilAdmin 업데이트 중 오류가 발생했습니다.", error);
     throw error;
   }
 };
-
 
 const getRoomSetting = async (roomId) => {
   return await appDataSource.query(
@@ -112,6 +136,18 @@ const updateRoundNumberToDB = async (roundNumber, roomId) => {
   );
 };
 
+const getRoundNumberFromDB = async (roomId) => {
+  try {
+    const result = await appDataSource.query(
+      `SELECT * FROM rooms WHERE id = ?`,
+      [roomId]
+    );
+    return result[0].current_round;
+  } catch (error) {
+    console.error(error);
+  }
+};
+
 const getGameRoomCurrentRound = async (roomId) => {
   const result = await appDataSource.query(
     `SELECT current_round FROM rooms WHERE id = ?`,
@@ -125,5 +161,6 @@ module.exports = {
   getRoomSetting,
   updateRoundNumberToDB,
   getGameRoomCurrentRound,
-  updatePencilAdminForRound
+  updatePencilAdminForRound,
+  getRoundNumberFromDB,
 };

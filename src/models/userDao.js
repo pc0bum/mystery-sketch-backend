@@ -169,6 +169,17 @@ const userDao = {
       throw new Error("Error updating user point");
     }
   },
+  getUserIsAdmin: async (username) => {
+    try {
+      const result = await appDataSource.query(
+        `SELECT isAdmin FROM users WHERE username = ?`,
+        [username]
+      );
+      return result[0].isAdmin;
+    } catch (error) {
+      throw new Error("Error getting user is admin");
+    }
+  },
 };
 
 module.exports = userDao;

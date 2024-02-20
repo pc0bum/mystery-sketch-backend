@@ -1,8 +1,10 @@
 const gameRoomDao = require("../models/gameRoomDao");
 const userDao = require("../models/userDao");
+const gameRoomController = require("../controllers/gameRoomController.js");
 
 const connectedUsers = {};
 const plusPoint = 100;
+let previousColors = []; // 이전 색상을 저장할 배열
 
 const setupSocket = (io) => {
   const messages = [];
@@ -11,10 +13,10 @@ const setupSocket = (io) => {
   io.on("connection", (socket) => {
     console.log(`Socket connected: ${socket.id}`);
 
-    socket.on("setUserInfo", (data) => {
+    socket.on("setUserInfo", async (data) => {
       console.log(`유저 닉네임 : ${data.userNickname}`);
       socket.username = data.userNickname;
-      connectedUsers[socket.username] = socket.id;
+      previousColors[socket.username] = [];
     });
 
     // 추방 기능
@@ -48,9 +50,16 @@ const setupSocket = (io) => {
       io.emit("nextRound");
     });
 
+    // socket gameEnd
+    socket.on("gameEnd", () => {
+      console.log(`gameEnd!!`);
+      io.emit("gameEnd");
+    });
+
     // socket disconnected
     socket.on("disconnect", async () => {
       console.log(`Socket disconnected: ${socket.id}`);
+      console.log(`소켓 연결된 유저 : ${connectedUsers}`);
 
       const roomId = socket.roomId;
       const username = socket.username;
@@ -74,6 +83,15 @@ const setupSocket = (io) => {
           console.error("Error updating user list", error);
         }
       }
+
+      if (username) {
+        try {
+          // 사용자가 연결을 해제하면 해당 사용자의 이전 색상 배열을 삭제
+          delete previousColors[username];
+        } catch (error) {
+          console.error("Error handling disconnected user", error);
+        }
+      }
     });
 
     // socket 메세지 보내기
@@ -88,8 +106,23 @@ const setupSocket = (io) => {
       startGame(socket);
     });
     // socket 그림 그리기 권한
-    socket.on("pencil", ({ isRound, roomId }) => {
-      io.to(roomId).emit("pencil", isRound);
+    socket.on("pencil", async ({ isRound, roomId }) => {
+      console.log(`라운드 & 룸 아이디 : ${isRound} , ${roomId} `);
+
+      const updatePencilAdmin = await gameRoomDao.updatePencilAdminForRound(
+        isRound,
+        roomId
+      );
+
+      console.log(`함수 호출결과 : ${updatePencilAdmin}`);
+      const gameroomInfo = await gameRoomDao.getGameroomInfo(roomId);
+      const updateRound = await gameRoomDao.updateRoundNumberToDB(
+        isRound,
+        roomId
+      );
+      const finalRoundNumber = await gameRoomDao.getRoundNumberFromDB(roomId);
+      io.emit("pencilUpdate", gameroomInfo);
+      io.emit("pencil", finalRoundNumber);
     });
     // socket 그림 그리기
     socket.on("draw", (data) => {
@@ -97,8 +130,20 @@ const setupSocket = (io) => {
     });
     // socket 컬러 변경
     socket.on("color", (data) => {
-      io.emit("color", data);
+      // 이전 색상을 저장하고 클라이언트에게 전송
+      const previousColor =
+        previousColors[socket.username][
+          previousColors[socket.username].length - 1
+        ] || "#000"; // 이전 색상이 없으면 기본값 #000 설정
+      previousColors[socket.username].push(data.color); // 새로운 색상을 배열에 추가
+      console.log(`이전 컬러 값 : ${previousColor}`);
+      io.emit("color", {
+        username: socket.username,
+        previousColor: [previousColor], // 이전 색상을 배열로 보냅니다.
+        newColor: data.color,
+      }); // 이전 색상과 새로운 색상을 클라이언트에게 전송
     });
+
     // 실시간 타이머
     socket.on("remainTimer", async ({ remainTime }) => {
       console.log(`Received updated time from client: ${remainTime}`);
@@ -111,11 +156,13 @@ const setupSocket = (io) => {
     });
 
     // socket 현재 라운드
-    socket.on("isRound", (data) => {
+    socket.on("isRound", async (data) => {
       const roomId = data.roomId;
       const isRound = data.isRound;
       const transRound = isRound + 1;
-      console.log(`룸 아이디 : ${roomId} , 현재라운드 : ${transRound}`);
+      console.log(
+        `룸 아이디 : ${roomId} , 받은라운드 : ${isRound} , 현재라운드 : ${transRound}`
+      );
       io.to(roomId).emit("isRound", transRound);
     });
 
